@@ -39,9 +39,15 @@ http://data.dws.informatik.uni-mannheim.de/dbpedia/2014/en/freebase_links_en.ttl
 http://data.dws.informatik.uni-mannheim.de/dbpedia/2014/en/interlanguage_links_chapters_en.ttl.bz2
 http://data.dws.informatik.uni-mannheim.de/dbpedia/2014/en/interlanguage_links_en.ttl.bz2"
 
-for line in "$links"
+rm -f ld.tsv
+
+for file in "$links"
 do
-    curl $line | bzcat | grep "\#sameAs" |  rapper -i ntriples -I - - file  2>/dev/null | cut -f1,3 -d '>' | sed 's/> </\t/g' | sed 's/> .&//g' | sed 's/^<//g' | sort -u
+    curl $file | bzcat | grep "\#sameAs" |  rapper -i ntriples -I - - file  2>/dev/null | cut -f1,3 -d '>' | sed 's/> </\t/g' | sed 's/> .&//g' | sed 's/^<//g' > temp.storage
+grep "^http://dbpedia.org" temp.storage > correct.tsv
+grep -V "^http://dbpedia.org" temp.storage | cut -f 2,1 >> correct.tsv
+cat correct.tsv
+
 done > ld.tsv
 
 DBUSER=root
